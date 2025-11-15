@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Hash Table",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-g",                           // debug symbols
+                "-O0",                          // tắt tối ưu hóa
+                "-Wall",                        // cảnh báo đầy đủ
+                "/home/thanhpham25/PersonalProject/C_C++_Projects/Write-a-Shell/source/*.c",   // tất cả file C
+                "-o",
+                "/home/thanhpham25/PersonalProject/C_C++_Projects/Write-a-Shell/build/main",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        }
+    ]
+}
