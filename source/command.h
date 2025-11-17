@@ -1,0 +1,13 @@
+#define COMMAND_H
+#ifdef COMMAND_H
+
+#include "main.h"
+
+int command_cd(char** args, char* initial_directory);
+int command_pwd();
+int command_env(char** env);
+int command_echo(char** args, char** env);
+int command_which(char** args, char** env);
+char* find_command_in_path(char* args, char* env[]);
+
+#endif
