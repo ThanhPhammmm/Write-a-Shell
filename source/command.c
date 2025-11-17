@@ -1,16 +1,63 @@
 #include "command.h"
 
-int command_cd(char** args, char* init_dir){
-    if(args[1] == NULL){
-        printf("[ERROR] cd command: expected argument: cd [path]\n");
+int command_cd(char **args, char *init_dir) {
+    static char prev_dir[PATH_MAX] = {0};
+    char current_dir[PATH_MAX];
+
+    if(getcwd(current_dir, sizeof(current_dir)) == NULL){
+        perror("getcwd");
         return 0;
     }
-    else if(chdir(args[1]) == 0){
-        printf("CD worked\n");
+
+    if(args[1] == NULL){
+        char *home = getenv("HOME");
+        if (home == NULL){
+            fprintf(stderr, "cd: HOME not set\n");
+            return 0;
+        }
+        if(chdir(home) != 0) perror("cd");
+        else{
+            strcpy(prev_dir, current_dir);
+        }
+        return 0;
+    }
+
+    if(strcmp(args[1], "-") == 0){
+        if(prev_dir[0] == 0){
+            fprintf(stderr, "cd: no previous directory\n");
+            return 0;
+        }
+        printf("%s\n", prev_dir);
+        if(chdir(prev_dir) != 0) perror("cd");
+        else {
+            strcpy(prev_dir, current_dir);
+        }
+        return 0;
+    }
+
+    if(args[1][0] == '~'){
+        char path[PATH_MAX];
+        char *home = getenv("HOME");
+        if(!home) {
+            fprintf(stderr, "cd: HOME not set\n");
+            return 0;
+        }
+
+        // HOME + remaining characters after symbol ~
+        snprintf(path, sizeof(path), "%s%s", home, args[1] + 1);
+
+        if(chdir(path) != 0) perror("cd");
+        else strcpy(prev_dir, current_dir);
+        return 0;
+    }
+
+    if(chdir(args[1]) != 0){
+        perror("cd");
     }
     else{
-        perror("CD");
+        strcpy(prev_dir, current_dir);
     }
+
     return 0;
 }
 

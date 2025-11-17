@@ -38,7 +38,10 @@ void loop_shell(char* env[]){
   char* initial_directory = getcwd(NULL, 0);
 
   while(1){
-    printf("[ThanhPham_Shell]:~$ ");
+    char cwd[PATH_MAX];
+    getcwd(cwd, sizeof(cwd));
+    printf("[ThanhPham_Shell]:%s$ ", cwd);
+    
     if(getline(&input, &input_size, stdin) == -1){
       perror("getline");
       break;
