@@ -5,10 +5,6 @@
 
 // cd, pwd, echo, env, setenv, unsetenv, which, exit
 int builtin_functions_shell(char** args, char** env, char* initial_directory){
-    for(size_t i = 0;args[i];i++){
-      printf("Arg[%ld]: %s", i, args[i]);
-      printf("\n");
-    } 
     if (strcmp(args[0], "cd") == 0) {
         return command_cd(args, initial_directory);
     } 
@@ -33,7 +29,7 @@ int builtin_functions_shell(char** args, char** env, char* initial_directory){
     return 0;
 }
 
-void loop_shell(char* envp[]){
+void loop_shell(char* env[]){
   char* input = NULL;
   size_t input_size = 0;
 
@@ -51,9 +47,22 @@ void loop_shell(char* envp[]){
     //printf("Input: %s", input);
  
     args = parse_input(input);
-
-    if(args[0]){
-      builtin_functions_shell(args, envp, initial_directory);
+    
+    for(size_t i = 0;args[i];i++){
+      printf("Arg[%ld]: %s", i, args[i]);
+      printf("\n");
+    } 
+    if(args[0] == NULL){
+      continue;;
+    }
+    else if(strcmp(args[0], "setenv") == 0){
+      env = command_setenv(args, env);
+    }
+    else if(strcmp(args[0], "unsetenv") == 0){
+      env = command_unsetenv(args, env);
+    }
+    else{
+      builtin_functions_shell(args, env, initial_directory);
     }
   }
 

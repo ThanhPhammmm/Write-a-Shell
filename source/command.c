@@ -152,7 +152,7 @@ char* find_command_in_path(char* command, char* env[]){
 
         if(access(full_path, X_OK) == 0){
             free(temp_path);
-            return strdup(full_path);//return address
+            return strdup(full_path); //return address because it presents until the end of the command processing
         }
 
         token = strtok(NULL, ":");
@@ -160,4 +160,96 @@ char* find_command_in_path(char* command, char* env[]){
     free(temp_path);
 
     return 0;
+}
+
+int count_env_vars(char* env[]){
+    int result = 0;
+    while(env[result]){
+        result += 1;
+    }
+    return result;
+}
+
+char** command_setenv(char* args[], char* env[]){
+    if (args[1] == NULL) {
+        printf("Usage:  setenv VAR=value\nor\tsetenv <variable> <value>\n");
+        return env;
+    }
+
+    int env_count = count_env_vars(env);
+    char** new_env = malloc((env_count + 2)* sizeof(char*)); //Add new variable and NULL
+    if(!new_env){
+        perror("malloc");
+        return env;
+    }
+
+    for(int i = 0;i < env_count;i++){
+        new_env[i] = strdup(env[i]); //copy string
+        if(!new_env[i]){
+            perror("strdup");
+            for (int j = 0; j < i; j++) {
+                free(new_env[j]);
+            }
+            free(new_env);
+            return env;
+        }
+    }
+
+    char* new_string = NULL;
+    if(args[2] == NULL){
+        new_string = strdup(args[1]);
+            printf("%s\n", new_string);
+
+        if(!new_string){
+            perror("strdup");
+            free(new_string);
+            return env;
+        }
+    }
+    else{
+        char* new_string = malloc(strlen(args[1]) + strlen(args[2]));
+        if(!new_string){
+            perror("malloc");
+            free(new_string);
+            return env;
+        }
+        sprintf(new_string, "%s=%s", args[1], args[2]);
+    }
+    printf("%s\n", new_string);
+    new_env[env_count] = new_string;
+    new_env[env_count + 1] = NULL;
+
+    return new_env;
+}
+
+char** command_unsetenv(char* args[], char* env[]){
+    if(!args[1]){
+        printf("Usage: unsetenv <variable>\n");
+    }
+
+    int env_count = count_env_vars(env);
+
+    int index = -1;
+    for(int i = 0;i < env_count;i++){
+        if(strncmp(env[i], args[1], strlen(args[1])) == 0 && env[i][strlen(args[1])] == '='){
+            index = i;
+            break;
+        }
+    }
+
+    if(index == -1){
+        printf("Variable %s not found in environment\n", args[1]);
+        return env;
+    }
+
+    free(env[index]);
+
+    while(env[index] != NULL){
+        env[index] =env[index + 1];
+        index++;
+    }
+
+    env[env_count - 1] = NULL;
+
+    return env;
 }
