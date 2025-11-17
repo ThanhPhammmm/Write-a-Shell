@@ -121,8 +121,8 @@ char* find_command_in_path(char* command, char* env[]){
     char* env_path = NULL;
 
     for(size_t i = 0;env[i];i++){
-        if(strncmp(env[i], "PATH=", 5)){
-            env_path = env[i];
+        if(strncmp(env[i], "PATH=", 5) == 0){
+            env_path = env[i] + 5;
             break;
         }
     }
