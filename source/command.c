@@ -1,4 +1,5 @@
 #include "command.h"
+#include "utilities.h"
 
 int command_cd(char **args, char *init_dir) {
     static char prev_dir[PATH_MAX] = {0};
@@ -78,10 +79,10 @@ int command_pwd(){
 }
 
 int command_echo(char** args, char** env){
-    int newline = 1; // Mặc định echo xuống dòng
+    int newline = 1; // echo defaultly goes down
     int index = 1;
 
-    // Kiểm tra option -n
+    // Check option -n
     if(args[1] && strcmp(args[1], "-n") == 0){
         newline = 0;
         index = 2;
@@ -300,3 +301,57 @@ char** command_unsetenv(char* args[], char* env[]){
 
     return env;
 }
+
+int executor(char* args[], char* env[]){
+    pid_t child_pid;
+
+    child_pid = fork();
+
+    if(child_pid == -1){
+        perror("fork");
+        return 0;
+    }
+
+    if(child_pid == 0){
+        if(child_process(args, env)){
+            perror("execve");
+            return 0;
+        }
+    }
+    else{
+        int status;
+        if(waitpid(child_pid, &status, 0) == -1){
+            perror("waitpid");
+            return 0;
+        }
+        if (WIFSIGNALED(status)){
+            printf("Process terminated by signal: %d\n", WTERMSIG(status));
+        }   
+    }
+    return 0;
+}
+
+int child_process(char* args[], char* env[]){
+    char* path_string = get_path(env);
+    if(path_string == NULL) return 1;
+    int num_paths;
+    char** path_list = split_into_paths(path_string, &num_paths);
+    if(path_list == NULL) return 1;
+
+    for(int i = 0;i < num_paths;i++){
+        char path[MAX_INPUT];
+        snprintf(path, sizeof(path), "%s/%s", path_list[i], args[0]);
+        if(access(path, X_OK) == 0){
+            execve(path, args, env);
+        }
+    }
+
+    for(int i = 0;path_list[i];i++){
+        free(path_list[i]);
+    }
+    free(path_string);
+    free(path_list);
+
+    return 0;
+}
+

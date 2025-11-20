@@ -24,7 +24,7 @@ int builtin_functions_shell(char** args, char** env, char* initial_directory){
         exit(EXIT_SUCCESS);
     } 
     else {
-        // Not a builtin command
+        executor(args, env);
     }
     return 0;
 }

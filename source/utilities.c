@@ -48,3 +48,44 @@ void free_tokens(char** tokens){
     }
     free(tokens); 
 }
+
+char* get_path(char* env[]){
+    for(int i = 0;env[i];i++){
+        if(strncmp(env[i], "PATH=", 5) == 0){
+            return strdup(env[i] + 5);
+        }
+    }
+    return NULL;
+}
+
+char** split_into_paths(char* path, int* count){
+    size_t size_of_path = strlen(path);
+    char copied_path[size_of_path];
+
+    strncpy(copied_path, path, sizeof(copied_path));
+    copied_path[size_of_path - 1] = '\0';
+    
+    char* token = strtok(copied_path, ":");
+
+    char** result = NULL;
+    *count = 0;
+
+    while(token){
+        result = realloc(result, (*count + 1) * sizeof(char*));
+        if(result == NULL){
+            perror("realloc");
+            return NULL;
+        }
+
+        result[*count] = strdup(token);
+        if(result[*count] == NULL){
+            perror("strdup");
+            return NULL;
+        }
+
+        (*count) += 1;
+        token = strtok(NULL, ":");
+    }
+
+    return result;
+}

@@ -14,6 +14,8 @@ char* find_command_in_path(char* args, char* env[]);
 char** command_setenv(char* args[], char* env[]);
 char** command_unsetenv(char* args[], char* env[]);
 int count_env_vars(char* env[]);
+int executor(char* args[], char* env[]);
+int child_process(char* args[], char* env[]);
 
 
 #endif

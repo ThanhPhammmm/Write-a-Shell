@@ -8,5 +8,7 @@
 char** parse_input(char* input);
 void free_tokens(char** tokens);
 int builtin_functions_shell(char** args, char** argv, char* initial_directory);
+char* get_path(char* env[]);
+char** split_into_paths(char* path, int* count);
 
 #endif
